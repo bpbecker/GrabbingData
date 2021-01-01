@@ -1,0 +1,4 @@
+ r←AlphavantageKey
+⍝ you can apply for an API key at: https://www.alphavantage.co/support/#api-key
+ ∘∘∘ ⍝ intentional error, remove this once you've inserted your API key
+ r←'insert your AlphaVantage API key here'

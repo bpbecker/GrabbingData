@@ -1,0 +1,5 @@
+ r←TwitterBearerKey
+⍝ use the Twitter Developer Portal to apply for a Bearer Key
+⍝ https://developer.twitter.com/en/portal/dashboard
+ ∘∘∘ ⍝ intentional error
+ r←'Your Key Goes Here'

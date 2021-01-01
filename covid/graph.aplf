@@ -1,0 +1,40 @@
+ graph which;read;⎕USING;data;sp;url;matches;inds;areas;totals
+ ⍝
+ ⍝ graphs COVID-19 time series for countries specified in which
+ ⍝ which - vector of country names to match, e.g. graph 'Finl' 'US' 'Denm' 'Germ'
+
+ read←{
+     z←HttpCommand.Get ⍵ ⍝ get the data
+     z.(rc HttpStatus)≢0 200:⍕z ⍝ check
+     ⎕CSV z.Data'S' 4
+ }
+
+ data←read'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
+ data⌿⍨←data[;1]≡¨⊂''
+ inds←{1+⍵[⍋⍵[;1];2]}↑(,⊆which)⎕S{⍵.(PatternNum BlockNum)}⊢data[;2]
+ areas←data[inds;2]
+ data←0 4↓data[inds;]
+
+
+⍝ ⎕USING←',sharpplot.dll' ',system.drawing.dll' ⍝ you probably want to localise ⎕USING
+ 'InitCauseway' ⎕CY 'sharpplot'
+ InitCauseway ⍬
+
+ sp←⎕NEW Causeway.SharpPlot
+
+⍝ Chart1 (Line)
+ sp.SetColors⊂System.Drawing.Color.(Navy Red Green Orange Teal DarkOrchid DimGray)
+ sp.Heading←'COVID-19 Cases'
+ sp.KeyStyle←Causeway.KeyStyles.(Vertical+Boxed+Rounded+Shadowed+BoxFrame+AutofitText+NoWrap)
+ sp.SetKeyText⊂areas{⍺,' (',({⍵{∊(⊂,∘',')¨@⍵⊢⍺}{1+⍵[2]+3×¯1+⍳⍵[1]}0 3⊤¯1+≢⍵}⍕⍵),')'}¨totals←⊢/data
+ sp.SetLineStyles⊂Causeway.LineStyle.(Solid Solid Solid)
+ sp.SetPenWidths⊂,1
+ sp.SetValueTags⊂⍬
+ sp.XAxisStyle←Causeway.XAxisStyles.(GridLines+CenteredCaption)
+ sp.XCaption←'Days Since 21 Jan 2020'
+ sp.YAxisStyle←Causeway.YAxisStyles.GridLines
+ sp.DrawLineGraph(↓data)(⍬)
+ sp.DrawKey 10 (⌈/totals)
+
+
+ (⎕NEW Causeway.SharpPlotViewer sp).Show ⍬        ⍝ Uncomment this line to view the chart (Windows IDE)

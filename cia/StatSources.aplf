@@ -1,0 +1,9 @@
+ srcs←StatSources;z;i;d;mask;f;x
+ ⍝ returns a matrix of all the demographic sources available in the CIA World Factbook
+ z←HttpCommand.Get'https://www.cia.gov/library/publications/the-world-factbook/rankorder/rankorderguide.html'
+ 'Failed to retrieve field list'⎕SIGNAL 999/⍨0 200≢z.(rc HttpStatus)
+ d←z.Data
+ d←d⊂⍨'<a href="../rankorder/'⍷d    ⍝ find links to individual tables
+ d←⊃⍪⌿{⎕XML ⍵↑⍨3+⊃⍸'</a>'⍷⍵}¨d      ⍝ extract the entire <a> elements
+ d⌿⍨←~∨/¨'Guide to Country'∘⍷¨d[;3] ⍝ remove the "Guide to Country" links
+ srcs←d[;,3],(⊂⊂1 2)⊃¨d[;4]         ⍝ save the metric name and link

@@ -1,0 +1,8 @@
+ Portfolio←{
+ ⍝ ⍵ is [;1] symbol, [;2] shares
+     d←QuoteCSV¨⍵[;1]
+     t←,1↑⊃d   ⍝ extract column titles
+     d←⊃⍪/1↓¨d ⍝ gather data together
+     d,←⍵[;2](×⍤0 1)1,d[;5 9] ⍝ multiply value and change by shares
+     (t,'shares' 'value' 'change')⍪d⍪(11⍴''),(+/d[;12]),⊂''
+ }

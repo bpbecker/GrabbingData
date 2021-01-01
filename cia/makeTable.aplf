@@ -1,0 +1,40 @@
+ r←makeTable sources;deb;split;extract;stat;link;z;rows;data;mask;inds;col;n;tonum;p;ind;measure
+ ⍝ sources - is a 2-column matrix of demographics to import
+ ⍝           [;1] demographic name, [;2] link to the data
+ ⍝           ∇StatSources creates a matrix of all available demographic sources
+ ⍝ r - is a matrix where [;1] is the country name and the remaining columns are the data for the requested demographics
+ ⍝     [1;] is the demographic names/units
+
+ r←1 1⍴⊂'Country' ⍝ start of the table
+ deb←{1↓¯1↓{⍵/⍨~'  '⍷⍵}' ',⍵,' '}
+ split←{⍵⊆⍨~⍵∊⎕UCS 13 10}
+ tonum←{{0∊⍴⍵:⎕NULL ⋄ ⊃(//)⎕VFI ⍵}⍵∩⎕D,'.'}
+ extract←{
+     {
+         (b e)←(⊣/,⊢/)⍸' '=⍵
+         b=e:(b↓⍵)⎕NULL
+         ~∨/⎕D∊e↓⍵:(b↓⍵)⎕NULL
+         (b↓(e-1)↑⍵)(tonum e↓⍵)
+     }deb ⍵
+ }
+ :For (stat link) :In ↓sources
+     ⍞←stat,' '
+     z←HttpCommand.Get'https://www.cia.gov/library/publications/the-world-factbook/rankorder/rawdata_',(link∩⎕D),'.txt'
+     :If z.(rc HttpStatus)≢0 200
+         ⎕←' failed'
+     :Else
+         p←HttpCommand.Get'https://www.cia.gov/library/publications/the-world-factbook/rankorder/',(link∩⎕D),'rank.html'
+         :If p.(rc HttpStatus)≡0 200
+             measure←{⍵/⍨'('∊⍵}{⍵↑⍨¯1+⊃⍸'</th>'⍷⍵}p.Data↓⍨19+1⍳⍨'<th>Country</th>'⍷p.Data
+         :Else
+             measure←'(Could not retrieve measure)'
+         :EndIf
+         data←↑extract¨split z.Data
+         mask←(≢r)≥inds←r[;1]⍳data[;1] ⍝ country lookup
+         r,←(⊂stat,measure),(¯1+≢r)⍴0
+         col←⊢/⍴r
+         r[mask/inds;col]←mask/data[;2]
+         r←((rows←≢r)+n←+/~mask)↑r
+         r[rows+⍳n;1 col]←(~mask)⌿data
+     :EndIf
+ :EndFor

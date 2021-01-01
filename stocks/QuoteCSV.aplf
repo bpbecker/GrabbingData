@@ -1,0 +1,4 @@
+ QuoteCSV←{
+     d←(HttpCommand.Get'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=',⍵,'&apikey=',AlphavantageKey,'&datatype=csv').Data
+     ⎕CSV d'S' 4
+ }

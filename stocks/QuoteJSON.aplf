@@ -1,0 +1,3 @@
+ QuoteJSON←{
+     (HttpCommand.Get'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=',⍵,'&apikey=',AlphavantageKey,'&datatype=json').Data
+ }
